@@ -1,0 +1,152 @@
+name: E2E-CHAOS-TEST
+
+on:
+  push:
+    branches:
+      - '*'
+      - '*/*'
+    tags-ignore:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'release version'
+        required: false
+        default: ''
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  GO_VERSION: '1.19'
+  HELM_VERSION: 'v3.10.0'
+
+
+jobs:
+  k3s-e2e-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        k3s: [ latest, v1.25, v1.24, v1.23, v1.22 ]
+    name: K3s ${{matrix.k3s}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup k3s
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          version: ${{ matrix.k3s }}
+          github-token: ${{ env.GITHUB_TOKEN }}
+
+      - name: install helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: checkout testinfra
+        uses: actions/checkout@v3
+        with:
+          repository: apecloud/testinfra
+          path: testinfra
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: install dbaas
+        run: |
+          RELEASE_VERSION=${{ github.event.inputs.release_version }}
+          if [[ -z "$RELEASE_VERSION" ]];then
+            RELEASE_VERSION=`bash ${{ github.workspace }}/testinfra/.github/utils/release-version.sh ${{ env.GITHUB_TOKEN }}`
+          fi
+          echo "RELEASE_VERSION:"$RELEASE_VERSION
+          
+          helm repo add kubeblocks https://apecloud.github.io/helm-charts
+
+          helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+            --version "$RELEASE_VERSION" \
+            --set="prometheus.enabled=true" \
+            --set="grafana.enabled=true" \
+            --set="dashboards.enabled=true" \
+            --set="loadbalancer.enabled=true"
+          
+          helm list -A
+
+      - name: install chaos-mesh
+        run: |
+          helm repo add chaos-mesh https://charts.chaos-mesh.org
+          
+          helm upgrade --install --create-namespace chaos-mesh chaos-mesh/chaos-mesh -n=chaos-testing
+          
+          helm list -A  
+
+      - name: setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: run test
+        run: |
+          cd testinfra
+          make test
+
+
+  k8s-e2e-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        k8s: [ latest, v1.25.4, v1.24.8, v1.23.14, v1.22.16 ]
+    name: K8s ${{matrix.k8s}}
+    env:
+      K8S: ${{ matrix.k8s }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: install helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: checkout testinfra
+        uses: actions/checkout@v3
+        with:
+          repository: apecloud/testinfra
+          path: testinfra
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: install k8s
+        run: |
+          cd testinfra
+          K8S_VERSION=${{ matrix.k8s }} make minikube-start 
+
+      - name: install dbaas
+        run: |
+          RELEASE_VERSION=${{ github.event.inputs.release_version }}
+          if [[ -z "$RELEASE_VERSION" ]];then
+            RELEASE_VERSION=`bash ${{ github.workspace }}/testinfra/.github/utils/release-version.sh ${{ env.GITHUB_TOKEN }}`
+          fi
+          echo "RELEASE_VERSION:"$RELEASE_VERSION
+          
+          helm repo add kubeblocks https://apecloud.github.io/helm-charts
+          
+          helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+            --version "$RELEASE_VERSION" \
+            --set="prometheus.enabled=true" \
+            --set="grafana.enabled=true" \
+            --set="dashboards.enabled=true" \
+            --set="loadbalancer.enabled=true"
+          
+          helm list -A
+
+      - name: install chaos-mesh
+        run: |
+          helm repo add chaos-mesh https://charts.chaos-mesh.org
+          
+          helm upgrade --install --create-namespace chaos-mesh chaos-mesh/chaos-mesh -n=chaos-testing
+          
+          helm list -A 
+
+      - name: setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: run test
+        run: |
+          cd testinfra
+          make test
