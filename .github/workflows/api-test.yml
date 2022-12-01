@@ -92,7 +92,7 @@ jobs:
       - name: run test
         run: |
           cd testinfra
-          make api-test TEST_MODULE=$TESTMODULE
+          make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
 
 
   k8s-api-test:
@@ -159,4 +159,4 @@ jobs:
       - name: run test
         run: |
           cd testinfra
-          make api-test TEST_MODULE=$TESTMODULE
+          make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
