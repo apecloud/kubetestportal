@@ -43,6 +43,7 @@ jobs:
         with:
           version: ${{ matrix.k3s }}
           github-token: ${{ env.GITHUB_TOKEN }}
+          k3d-args: --servers 3 --no-lb
 
       - name: install helm
         uses: azure/setup-helm@v3
