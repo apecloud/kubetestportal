@@ -101,7 +101,7 @@ jobs:
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
 
 
-  k8s-api-test:
+  minikube-api-test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -125,7 +125,7 @@ jobs:
           path: testinfra
           token: ${{ env.GITHUB_TOKEN }}
 
-      - name: install k8s
+      - name: install minikube k8s
         run: |
           cd testinfra
           K8S_VERSION=${{ matrix.k8s }} make minikube-start 
