@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         k8s: [ latest, v1.25.4, v1.24.8, v1.23.14, v1.22.16 ]
-    name: K8s ${{matrix.k8s}}
+    name: minikube K8s ${{matrix.k8s}}
     env:
       K8S: ${{ matrix.k8s }}
     steps:
@@ -55,6 +55,9 @@ jobs:
         run: |
           cd testinfra
           bash ${{ github.workspace }}/testinfra/.github/utils/install-minikube.sh
+          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
+          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
+          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
 
       - name: install dbaas
         run: |

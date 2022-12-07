@@ -26,7 +26,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   GO_VERSION: '1.19'
   HELM_VERSION: 'v3.10.0'
-
+  K3D_NAME: default
 
 jobs:
   k3s-api-test:
@@ -41,9 +41,16 @@ jobs:
       - name: setup k3s
         uses: nolar/setup-k3d-k3s@v1
         with:
+          k3d-name: ${{ env.K3D_NAME }}
           version: ${{ matrix.k3s }}
           github-token: ${{ env.GITHUB_TOKEN }}
           k3d-args: --servers 3 --no-lb
+
+      - name: label k3s node
+        run: |
+          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-0 topology.kubernetes.io/zone=cn-northwest-1a
+          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-1 topology.kubernetes.io/zone=cn-northwest-1b
+          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-2 topology.kubernetes.io/zone=cn-northwest-1c
 
       - name: install helm
         uses: azure/setup-helm@v3
@@ -101,7 +108,7 @@ jobs:
       fail-fast: false
       matrix:
         k8s: [ latest, v1.25.4, v1.24.8, v1.23.14, v1.22.16 ]
-    name: K8s ${{matrix.k8s}}
+    name: minikube K8s ${{matrix.k8s}}
     env:
       K8S: ${{ matrix.k8s }}
     steps:
@@ -123,6 +130,9 @@ jobs:
         run: |
           cd testinfra
           bash ${{ github.workspace }}/testinfra/.github/utils/install-minikube.sh
+          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
+          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
+          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
 
       - name: install dbaas
         run: |
@@ -190,6 +200,9 @@ jobs:
         run: |
           cd testinfra
           K8S_VERSION=${{ matrix.k8s }} make minikube-start 
+          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
+          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
+          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
 
       - name: install dbaas
         run: |
