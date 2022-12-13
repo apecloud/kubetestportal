@@ -44,13 +44,11 @@ jobs:
           k3d-name: ${{ env.K3D_NAME }}
           version: ${{ matrix.k3s }}
           github-token: ${{ env.GITHUB_TOKEN }}
-          k3d-args: --servers 3 --no-lb
+          k3d-args: --agents 2 --no-lb --k3s-node-label topology.kubernetes.io/zone=cn-northwest-1b@agent:0 --k3s-node-label topology.kubernetes.io/zone=cn-northwest-1c@agent:1 --k3s-node-label topology.kubernetes.io/zone=cn-northwest-1a@server:0
 
-      - name: label k3s node
+      - name: show node labels
         run: |
-          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-0 topology.kubernetes.io/zone=cn-northwest-1a
-          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-1 topology.kubernetes.io/zone=cn-northwest-1b
-          kubectl label nodes k3d-${{ env.K3D_NAME }}-server-2 topology.kubernetes.io/zone=cn-northwest-1c
+          kubectl get nodes --show-labels
 
       - name: install helm
         uses: azure/setup-helm@v3
@@ -130,9 +128,7 @@ jobs:
         run: |
           cd testinfra
           bash ${{ github.workspace }}/testinfra/.github/utils/install-minikube.sh
-          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
-          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
-          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
+          kubectl get nodes --show-labels
 
       - name: install dbaas
         run: |
@@ -199,10 +195,8 @@ jobs:
       - name: install k8s
         run: |
           cd testinfra
-          K8S_VERSION=${{ matrix.k8s }} make minikube-start 
-          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
-          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
-          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
+          K8S_VERSION=${{ matrix.k8s }} make minikube-start
+          kubectl get nodes --show-labels
 
       - name: install dbaas
         run: |

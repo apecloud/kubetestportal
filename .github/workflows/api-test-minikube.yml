@@ -55,9 +55,7 @@ jobs:
         run: |
           cd testinfra
           bash ${{ github.workspace }}/testinfra/.github/utils/install-minikube.sh
-          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
-          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
-          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
+          kubectl get nodes --show-labels
 
       - name: install dbaas
         run: |

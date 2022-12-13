@@ -54,10 +54,8 @@ jobs:
       - name: install k8s
         run: |
           cd testinfra
-          K8S_VERSION=${{ matrix.k8s }} make minikube-start 
-          kubectl label nodes minikube topology.kubernetes.io/zone=cn-northwest-1a
-          kubectl label nodes minikube-m02 topology.kubernetes.io/zone=cn-northwest-1b
-          kubectl label nodes minikube-m03 topology.kubernetes.io/zone=cn-northwest-1c
+          K8S_VERSION=${{ matrix.k8s }} make minikube-start
+          kubectl get nodes --show-labels
 
       - name: install dbaas
         run: |
