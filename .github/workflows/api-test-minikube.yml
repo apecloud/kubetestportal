@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        k8s: [ latest, v1.25.4, v1.24.8, v1.23.14, v1.22.16 ]
+        k8s: [ v1.25.4, v1.24.8, v1.23.14, v1.22.16 ]
     name: minikube K8s ${{matrix.k8s}}
     env:
       K8S: ${{ matrix.k8s }}
