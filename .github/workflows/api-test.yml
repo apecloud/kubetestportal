@@ -97,6 +97,9 @@ jobs:
 
       - name: run test
         run: |
+          bash ${{ github.workspace }}/testinfra/.github/utils/change-wesql-cd.sh \
+            ${{ github.workspace }}/testinfra
+          
           cd testinfra
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
 
@@ -164,6 +167,9 @@ jobs:
 
       - name: run test
         run: |
+          bash ${{ github.workspace }}/testinfra/.github/utils/change-wesql-cd.sh \
+            ${{ github.workspace }}/testinfra
+          
           cd testinfra
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
 
@@ -232,5 +238,8 @@ jobs:
 
       - name: run test
         run: |
+          bash ${{ github.workspace }}/testinfra/.github/utils/change-wesql-cd.sh \
+            ${{ github.workspace }}/testinfra
+          
           cd testinfra
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
