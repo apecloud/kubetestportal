@@ -19,6 +19,12 @@ on:
         description: 'all: open monitor and loadbalancer'
         required: false
         default: ''
+      change_flag:
+        description: '1: change wesql cd flag'
+        required: false
+        default: '1'
+
+run-name: kubeblocks ${{ github.event.inputs.release_version }} ${{ github.event.inputs.test_module }}
 
 env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -105,7 +111,7 @@ jobs:
       - name: run test
         run: |
           bash ${{ github.workspace }}/testinfra/.github/utils/change-wesql-cd.sh \
-            ${{ github.workspace }}/testinfra
+            ${{ github.workspace }}/testinfra ${{ github.event.inputs.change_flag }}
           
           cd testinfra
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
@@ -184,7 +190,7 @@ jobs:
       - name: run test
         run: |
           bash ${{ github.workspace }}/testinfra/.github/utils/change-wesql-cd.sh \
-            ${{ github.workspace }}/testinfra
+            ${{ github.workspace }}/testinfra ${{ github.event.inputs.change_flag }}
           
           cd testinfra
           make api-test TEST_MODULE=${{ github.event.inputs.test_module }}
