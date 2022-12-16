@@ -16,9 +16,9 @@ on:
         required: false
         default: 'latest'
       model:
-        description: 'all: open monitor and loadbalancer'
+        description: 'monitor: open monitor; all: open monitor/loadbalancer'
         required: false
-        default: ''
+        default: 'monitor'
       change_flag:
         description: '1: change wesql cd flag'
         required: false
@@ -71,12 +71,19 @@ jobs:
           helm repo add kubeblocks https://apecloud.github.io/helm-charts
           
           MODEL=${{ github.event.inputs.model }}
-          if [[ "$MODEL" == "all" ]]; then
+          if [[ "$MODEL" == "monitor" ]]; then
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
               --set="dashboards.enabled=true"
+          elif [[ "$MODEL" == "all" ]]; then
+            helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+              --version "$RELEASE_VERSION" \
+              --set="prometheus.enabled=true" \
+              --set="grafana.enabled=true" \
+              --set="dashboards.enabled=true" \
+              --set="loadbalancer.enabled=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
