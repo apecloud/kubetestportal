@@ -82,8 +82,7 @@ jobs:
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
-              --set="dashboards.enabled=true" \
-              --set="loadbalancer.enabled=true"
+              --set="dashboards.enabled=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
@@ -152,8 +151,7 @@ jobs:
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
-              --set="dashboards.enabled=true" \
-              --set="loadbalancer.enabled=true"
+              --set="dashboards.enabled=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
@@ -223,8 +221,7 @@ jobs:
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
-              --set="dashboards.enabled=true" \
-              --set="loadbalancer.enabled=true"
+              --set="dashboards.enabled=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
