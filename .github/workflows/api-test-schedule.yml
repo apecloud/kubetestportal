@@ -1,0 +1,41 @@
+name: API-TEST-SCHEDULE
+
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'kubeblocks release version'
+        required: false
+        default: 'latest'
+      api_type:
+        description: 'only test api type e.g.:chaosmesh'
+        required: false
+        default: ''
+
+
+run-name: schedule:${{ github.event.inputs.release_version }} ${{ github.event.inputs.api_type }}
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+jobs:
+  api-test-schedule:
+    runs-on: ubuntu-latest
+    name: run api test schedule
+    steps:
+      - uses: actions/checkout@v3
+      - name: checkout testinfra
+        uses: actions/checkout@v3
+        with:
+          repository: apecloud/testinfra
+          path: testinfra
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: run api test schedule
+        run: |
+          bash ${{ github.workspace }}/testinfra/.github/utils/api-test-schedule.sh \
+            ${{ env.GITHUB_TOKEN }} \
+            ${{ github.event.inputs.release_version }} \
+            ${{ github.event.inputs.api_type }}
