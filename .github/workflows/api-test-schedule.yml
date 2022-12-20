@@ -35,7 +35,11 @@ jobs:
 
       - name: run api test schedule
         run: |
+          RELEASE_VERSION=`bash ${{ github.workspace }}/testinfra/.github/utils/release-version.sh ${{ env.GITHUB_TOKEN }} ${{ github.event.inputs.release_version }}`
+          echo "RELEASE_VERSION:"$RELEASE_VERSION
+          
+          cd testinfra
           bash ${{ github.workspace }}/testinfra/.github/utils/api-test-schedule.sh \
             ${{ env.GITHUB_TOKEN }} \
-            ${{ github.event.inputs.release_version }} \
+            $RELEASE_VERSION \
             ${{ github.event.inputs.api_type }}
