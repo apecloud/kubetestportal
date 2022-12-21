@@ -16,11 +16,11 @@ on:
         required: false
         default: 'latest'
       model:
-        description: 'monitor: open monitor; all: open monitor/loadbalancer'
+        description: 'monitor:open monitor; snapshot:open snapshot; loadbalancer:open loadbalancer; all:open monitor/snapshot/loadbalancer'
         required: false
         default: 'monitor'
       change_flag:
-        description: '1: change wesql cd flag'
+        description: '1:change wesql cd; 2:change wesql cd fixed passwd'
         required: false
         default: '1'
 
@@ -82,13 +82,22 @@ jobs:
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
               --set="dashboards.enabled=true"
+          elif [[ "$MODEL" == "snapshot" ]]; then
+            helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+              --version "$RELEASE_VERSION" \
+              --set="dataProtection.enableVolumeSnapshot=true"
+          elif [[ "$MODEL" == "loadbalancer" ]]; then
+            helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+              --version "$RELEASE_VERSION" \
+              --set="loadbalancer.enabled=true"
           elif [[ "$MODEL" == "all" ]]; then
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
               --set="dashboards.enabled=true" \
-              --set="loadbalancer.enabled=true"
+              --set="loadbalancer.enabled=true" \
+              --set="dataProtection.enableVolumeSnapshot=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
@@ -167,13 +176,22 @@ jobs:
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
               --set="dashboards.enabled=true"
+          elif [[ "$MODEL" == "snapshot" ]]; then
+            helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+              --version "$RELEASE_VERSION" \
+              --set="dataProtection.enableVolumeSnapshot=true"
+          elif [[ "$MODEL" == "loadbalancer" ]]; then
+            helm upgrade --install kubeblocks kubeblocks/kubeblocks \
+              --version "$RELEASE_VERSION" \
+              --set="loadbalancer.enabled=true"
           elif [[ "$MODEL" == "all" ]]; then
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION" \
               --set="prometheus.enabled=true" \
               --set="grafana.enabled=true" \
               --set="dashboards.enabled=true" \
-              --set="loadbalancer.enabled=true"
+              --set="loadbalancer.enabled=true" \
+              --set="dataProtection.enableVolumeSnapshot=true"
           else
             helm upgrade --install kubeblocks kubeblocks/kubeblocks \
               --version "$RELEASE_VERSION"
